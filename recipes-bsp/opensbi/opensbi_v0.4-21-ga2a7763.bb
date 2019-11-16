@@ -12,6 +12,7 @@ BRANCH = "master"
 SRCREV = "a2a7763ac7651e64c3928ba0a13be9317bd48c4d"
 SRC_URI = "git://github.com/riscv/opensbi.git;branch=${BRANCH} \
            file://0001-Makefile-Don-t-specify-mabi-or-march.patch \
+           file://0001-platform-u540-force-running-in-single-SMP-core-mode.patch \
           "
 
 S = "${WORKDIR}/git"

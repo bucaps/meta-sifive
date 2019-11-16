@@ -1,0 +1,33 @@
+From 32c1099a7e462efaedf19edef0c4495ee078a8c0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=B6kt=C3=BCrk=20Y=C3=BCksek?= <gokturk@gentoo.org>
+Date: Sat, 16 Nov 2019 15:21:51 -0500
+Subject: [PATCH] arch/riscv/.../hifive-unleashed-a00.dts: do not expose SMP
+ cores 2-4
+
+---
+ arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+index 45421489fdfc..0f2012453758 100644
+--- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
++++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+@@ -66,15 +66,6 @@
+ &cpu1 {
+ 	operating-points-v2 = <&fu540_c000_opp_table>;
+ };
+-&cpu2 {
+-	operating-points-v2 = <&fu540_c000_opp_table>;
+-};
+-&cpu3 {
+-	operating-points-v2 = <&fu540_c000_opp_table>;
+-};
+-&cpu4 {
+-	operating-points-v2 = <&fu540_c000_opp_table>;
+-};
+ 
+ &uart0 {
+ 	status = "okay";
+-- 
+2.24.0
+

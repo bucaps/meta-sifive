@@ -1,0 +1,111 @@
+From 11baf8ebb895ab01f4a3e4d0ef92d4fc28b75ee2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=B6kt=C3=BCrk=20Y=C3=BCksek?= <gokturk@gentoo.org>
+Date: Sat, 16 Nov 2019 15:21:02 -0500
+Subject: [PATCH] arch/riscv/boot/dts/sifive/fu540-c000.dtsi: do not expose SMP
+ cores 2-4
+
+---
+ arch/riscv/boot/dts/sifive/fu540-c000.dtsi | 80 +---------------------
+ 1 file changed, 1 insertion(+), 79 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
+index 4e2f2337b59d..e05f5f8c8e6b 100644
+--- a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
++++ b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
+@@ -62,81 +62,6 @@
+ 				interrupt-controller;
+ 			};
+ 		};
+-		cpu2: cpu@2 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,u54-mc", "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			reg = <2>;
+-			riscv,isa = "rv64imafdc";
+-			tlb-split;
+-			clocks = <&prci PRCI_CLK_COREPLL>;
+-			cpu2_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu3: cpu@3 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,u54-mc", "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			reg = <3>;
+-			riscv,isa = "rv64imafdc";
+-			tlb-split;
+-			clocks = <&prci PRCI_CLK_COREPLL>;
+-			cpu3_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu4: cpu@4 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,u54-mc", "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			reg = <4>;
+-			riscv,isa = "rv64imafdc";
+-			tlb-split;
+-			clocks = <&prci PRCI_CLK_COREPLL>;
+-			cpu4_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+ 	};
+ 	soc {
+ 		#address-cells = <2>;
+@@ -151,10 +76,7 @@
+ 			interrupt-controller;
+ 			interrupts-extended = <
+ 				&cpu0_intc 0xffffffff
+-				&cpu1_intc 0xffffffff &cpu1_intc 9
+-				&cpu2_intc 0xffffffff &cpu2_intc 9
+-				&cpu3_intc 0xffffffff &cpu3_intc 9
+-				&cpu4_intc 0xffffffff &cpu4_intc 9>;
++				&cpu1_intc 0xffffffff &cpu1_intc 9>;
+ 		};
+ 		prci: clock-controller@10000000 {
+ 			compatible = "sifive,fu540-c000-prci";
+-- 
+2.24.0
+

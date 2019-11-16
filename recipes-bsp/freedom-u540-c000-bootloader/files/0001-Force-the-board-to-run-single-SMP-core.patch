@@ -1,0 +1,365 @@
+From 32a80dd2a87a9e48587bf7678f3cfb683000dde3 Mon Sep 17 00:00:00 2001
+From: Gokturk Yuksek <gokturk@binghamton.edu>
+Date: Fri, 15 Nov 2019 18:52:07 -0500
+Subject: [PATCH] Force the board to run single SMP core
+
+Only enable the monitor core and the smp core 0. Other cores execute
+an infinite loop.
+
+Signed-off-by: Gokturk Yuksek <gokturk@binghamton.edu>
+---
+ fsbl/main.c        |  2 +-
+ fsbl/start.S       |  9 +++++
+ fsbl/ux00_fsbl.dts | 87 ++------------------------------------------
+ sifive/platform.h  |  4 +--
+ sifive/smp.h       | 20 ++++++++++-
+ zsbl/start.S       |  9 +++++
+ zsbl/ux00_zsbl.dts | 90 ++--------------------------------------------
+ 7 files changed, 46 insertions(+), 175 deletions(-)
+
+diff --git a/fsbl/main.c b/fsbl/main.c
+index ed1321b..dc79ff0 100644
+--- a/fsbl/main.c
++++ b/fsbl/main.c
+@@ -35,7 +35,7 @@
+ #include <ux00boot/ux00boot.h>
+ #include <gpt/gpt.h>
+ 
+-#define NUM_CORES 5
++#define NUM_CORES 2
+ 
+ #ifndef PAYLOAD_DEST
+   #define PAYLOAD_DEST MEMORY_MEM_ADDR
+diff --git a/fsbl/start.S b/fsbl/start.S
+index 13d7f3b..98359d4 100644
+--- a/fsbl/start.S
++++ b/fsbl/start.S
+@@ -57,6 +57,15 @@ _start:
+   la gp, __global_pointer$
+ .option pop
+ 
++  auipc t0, 8
++  csrw mtvec, t0
++  li s1, 2
++  smp_disable_hart(s1, s2)
++  li s1, 3
++  smp_disable_hart(s1, s2)
++  li s1, 4
++  smp_disable_hart(s1, s2)
++
+ /* end from common/crt.S */
+   la t0, trap_entry
+   csrw mtvec, t0		// 0x800004a in fsbl-1.0
+diff --git a/fsbl/ux00_fsbl.dts b/fsbl/ux00_fsbl.dts
+index f27cc22..5f0e49d 100644
+--- a/fsbl/ux00_fsbl.dts
++++ b/fsbl/ux00_fsbl.dts
+@@ -73,87 +73,6 @@
+ 				interrupt-controller;
+ 			};
+ 		};
+-		L15: cpu@2 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			next-level-cache = <&L24 &L0>;
+-			reg = <2>;
+-			riscv,isa = "rv64imafdc";
+-			sifive,itim = <&L14>;
+-			status = "okay";
+-			tlb-split;
+-			L16: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		L18: cpu@3 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			next-level-cache = <&L24 &L0>;
+-			reg = <3>;
+-			riscv,isa = "rv64imafdc";
+-			sifive,itim = <&L17>;
+-			status = "okay";
+-			tlb-split;
+-			L19: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		L21: cpu@4 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			next-level-cache = <&L24 &L0>;
+-			reg = <4>;
+-			riscv,isa = "rv64imafdc";
+-			sifive,itim = <&L20>;
+-			status = "okay";
+-			tlb-split;
+-			L22: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+ 	};
+ 	L36: memory@80000000 {
+ 		device_type = "memory";
+@@ -221,13 +140,13 @@
+ 		};
+ 		L5: clint@2000000 {
+ 			compatible = "riscv,clint0";
+-			interrupts-extended = <&L10 3 &L10 7 &L13 3 &L13 7 &L16 3 &L16 7 &L19 3 &L19 7 &L22 3 &L22 7>;
++			interrupts-extended = <&L10 3 &L10 7 &L13 3 &L13 7>;
+ 			reg = <0x0 0x2000000 0x0 0x10000>;
+ 			reg-names = "control";
+ 		};
+ 		L6: debug-controller@0 {
+ 			compatible = "sifive,debug-013", "riscv,debug-013";
+-			interrupts-extended = <&L10 65535 &L13 65535 &L16 65535 &L19 65535 &L22 65535>;
++			interrupts-extended = <&L10 65535 &L13 65535>;
+ 			reg = <0x0 0x0 0x0 0x1000>;
+ 			reg-names = "control";
+ 		};
+@@ -358,7 +277,7 @@
+ 			#interrupt-cells = <1>;
+ 			compatible = "riscv,plic0";
+ 			interrupt-controller;
+-			interrupts-extended = <&L10 11 &L13 11 &L13 9 &L16 11 &L16 9 &L19 11 &L19 9 &L22 11 &L22 9>;
++			interrupts-extended = <&L10 11 &L13 11 &L13 9>;
+ 			reg = <0x0 0xc000000 0x0 0x4000000>;
+ 			reg-names = "control";
+ 			riscv,max-priority = <7>;
+diff --git a/sifive/platform.h b/sifive/platform.h
+index dd5be1d..9f61254 100644
+--- a/sifive/platform.h
++++ b/sifive/platform.h
+@@ -30,8 +30,8 @@
+  *****************************************************************************/
+ 
+ // CPU info
+-#define NUM_CORES 5
+-#define MAX_HART_ID 4
++#define NUM_CORES 2
++#define MAX_HART_ID 1
+ #define GLOBAL_INT_SIZE 59
+ #define GLOBAL_INT_MAX_PRIORITY 7
+ #define RTC_FREQUENCY_HZ _AC(1000000,UL)
+diff --git a/sifive/smp.h b/sifive/smp.h
+index 59cd32f..aebffeb 100644
+--- a/sifive/smp.h
++++ b/sifive/smp.h
+@@ -9,7 +9,7 @@
+ 
+ // The maximum number of HARTs this code supports
+ #ifndef MAX_HARTS
+-#define MAX_HARTS 32
++#define MAX_HARTS 2
+ #endif
+ #ifndef CLINT_CTRL_ADDR
+ #define CLINT_CTRL_ADDR CLIC_CTRL_ADDR
+@@ -34,6 +34,24 @@
+   j 42b						;\
+ hart0_entry:
+ 
++/*
++ * Permanently disable an SMP hart
++ */
++#define smp_disable_hart(hart_id, reg_tmp)	\
++  li reg_tmp, NONSMP_HART		       ;\
++  beq hart_id, reg_tmp, 42f		       ;\
++  csrr reg_tmp, mhartid			       ;\
++  bne hart_id, reg_tmp, 42f		       ;\
++  csrw mie, zero			       ;\
++  li reg_tmp, CLINT_CTRL_ADDR		       ;\
++  slli hart_id, hart_id, 2		       ;\
++  add reg_tmp, reg_tmp, hart_id		       ;\
++  sw zero, 0(reg_tmp)			       ;\
++41:					       ;\
++  wfi					       ;\
++  j 41b					       ;\
++42:
++
+ /* If your test needs to temporarily block multiple-threads, do this:
+  *    smp_pause(reg1, reg2)
+  *    ... single-threaded work ...
+diff --git a/zsbl/start.S b/zsbl/start.S
+index e0f85b2..c91a810 100644
+--- a/zsbl/start.S
++++ b/zsbl/start.S
+@@ -11,6 +11,15 @@
+ _prog_start:
+   .globl _start
+ _start:
++  la t0, _start
++  csrw mtvec, t0
++  li s1, 2
++  smp_disable_hart(s1, s2)
++  li s1, 3
++  smp_disable_hart(s1, s2)
++  li s1, 4
++  smp_disable_hart(s1, s2)
++
+   la t0, trap_entry
+   csrw mtvec, t0
+ 
+diff --git a/zsbl/ux00_zsbl.dts b/zsbl/ux00_zsbl.dts
+index cbd7b5b..dcc1b18 100644
+--- a/zsbl/ux00_zsbl.dts
++++ b/zsbl/ux00_zsbl.dts
+@@ -61,90 +61,6 @@
+ 				interrupt-controller;
+ 			};
+ 		};
+-		L17: cpu@2 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			next-level-cache = <&L0 &L27>;
+-			reg = <2>;
+-			riscv,isa = "rv64imafdc";
+-			sifive,itim = <&L15>;
+-			status = "okay";
+-			timebase-frequency = <1000000>;
+-			tlb-split;
+-			L14: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		L21: cpu@3 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			next-level-cache = <&L0 &L27>;
+-			reg = <3>;
+-			riscv,isa = "rv64imafdc";
+-			sifive,itim = <&L19>;
+-			status = "okay";
+-			timebase-frequency = <1000000>;
+-			tlb-split;
+-			L18: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		L25: cpu@4 {
+-			clock-frequency = <0>;
+-			compatible = "sifive,rocket0", "riscv";
+-			d-cache-block-size = <64>;
+-			d-cache-sets = <64>;
+-			d-cache-size = <32768>;
+-			d-tlb-sets = <1>;
+-			d-tlb-size = <32>;
+-			device_type = "cpu";
+-			i-cache-block-size = <64>;
+-			i-cache-sets = <64>;
+-			i-cache-size = <32768>;
+-			i-tlb-sets = <1>;
+-			i-tlb-size = <32>;
+-			mmu-type = "riscv,sv39";
+-			next-level-cache = <&L0 &L27>;
+-			reg = <4>;
+-			riscv,isa = "rv64imafdc";
+-			sifive,itim = <&L23>;
+-			status = "okay";
+-			timebase-frequency = <1000000>;
+-			tlb-split;
+-			L22: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+ 	};
+ 	L37: memory@80000000 {
+ 		device_type = "memory";
+@@ -221,13 +137,13 @@
+ 		};
+ 		L3: clint@2000000 {
+ 			compatible = "riscv,clint0";
+-			interrupts-extended = <&L5 3 &L5 7 &L10 3 &L10 7 &L14 3 &L14 7 &L18 3 &L18 7 &L22 3 &L22 7>;
++			interrupts-extended = <&L5 3 &L5 7 &L10 3 &L10 7>;
+ 			reg = <0x0 0x2000000 0x0 0x10000>;
+ 			reg-names = "control";
+ 		};
+ 		L4: debug-controller@0 {
+ 			compatible = "sifive,debug-013", "riscv,debug-013";
+-			interrupts-extended = <&L5 65535 &L10 65535 &L14 65535 &L18 65535 &L22 65535>;
++			interrupts-extended = <&L5 65535 &L10 65535>;
+ 			reg = <0x0 0x0 0x0 0x1000>;
+ 			reg-names = "control";
+ 		};
+@@ -283,7 +199,7 @@
+ 			#interrupt-cells = <1>;
+ 			compatible = "riscv,plic0";
+ 			interrupt-controller;
+-			interrupts-extended = <&L5 11 &L10 11 &L10 9 &L14 11 &L14 9 &L18 11 &L18 9 &L22 11 &L22 9>;
++			interrupts-extended = <&L5 11 &L10 11 &L10 9>;
+ 			reg = <0x0 0xc000000 0x0 0x4000000>;
+ 			reg-names = "control";
+ 			riscv,max-priority = <7>;
+-- 
+2.24.0
+

@@ -1,0 +1,27 @@
+From a1badaa9b7aab8a6410bd05fb11cb4295bb2e233 Mon Sep 17 00:00:00 2001
+From: Gokturk Yuksek <gokturk@binghamton.edu>
+Date: Wed, 20 Nov 2019 18:45:13 -0500
+Subject: [PATCH] arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts: limit
+ mem to 1G
+
+Signed-off-by: Gokturk Yuksek <gokturk@binghamton.edu>
+---
+ arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+index 0f2012453758..0603f8e703ff 100644
+--- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
++++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+@@ -21,7 +21,7 @@
+ 
+ 	memory@80000000 {
+ 		device_type = "memory";
+-		reg = <0x0 0x80000000 0x2 0x00000000>;
++		reg = <0x0 0x80000000 0x0 0x40000000>;
+ 	};
+ 
+ 	soc {
+-- 
+2.24.0
+

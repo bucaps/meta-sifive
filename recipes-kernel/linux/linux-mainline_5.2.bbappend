@@ -14,4 +14,5 @@ SRC_URI_append = " file://riscv-fix-flush_tlb_range-end-address-for-flush_tlb_pa
                    file://fu540-l2-cache-enable.patch \
                    file://0001-arch-riscv-boot-dts-sifive-fu540-c000.dtsi-do-not-ex.patch \
                    file://0002-arch-riscv-.-hifive-unleashed-a00.dts-do-not-expose-.patch \
+                   file://0003-arch-riscv-boot-dts-sifive-hifive-unleashed-a00.dts-.patch \
 "

@@ -4,7 +4,7 @@
 DIR="build"
 MACHINE="freedom-u540"
 CONFFILE="conf/auto.conf"
-BITBAKEIMAGE="demo-coreip-cli"
+BITBAKEIMAGE="kernel-only"
 
 # clean up the output dir
 #echo "Cleaning build dir"

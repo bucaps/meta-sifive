@@ -40,7 +40,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/bucaps/meta-sifive -b master -m tools/manifests/sifive.xml
+repo init -u git://github.com/bucaps/meta-sifive -b kernel-only -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -89,9 +89,9 @@ There are two machine targets currently tested:
 Building disk image takes a single command which my take anything from 30 minutes to several hours depending on your hardware. Examples:
 
 ```bash
-MACHINE=qemuriscv64 bitbake demo-coreip-cli
-MACHINE=freedom-u540 bitbake demo-coreip-cli
-MACHINE=freedom-u540 bitbake demo-coreip-xfce4
+MACHINE=qemuriscv64 bitbake kernel-only
+MACHINE=freedom-u540 bitbake kernel-only
+MACHINE=freedom-u540 bitbake kernel-only
 ```
 
 ### Running in QEMU

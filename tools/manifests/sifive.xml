@@ -3,7 +3,7 @@
 <manifest>
   <remote name="openembedded" fetch="git://github.com/openembedded/" />
   <remote name="riscv" fetch="git://github.com/riscv/" />
-  <remote name="sifive" fetch="git://github.com/sifive/" />
+  <remote name="sifive" fetch="git://github.com/bucaps/" />
   <default remote="openembedded" revision="master" />
 
   <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="87a209be777318fefb87da6e295f4c34540717f3" />
